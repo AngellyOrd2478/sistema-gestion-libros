@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # Servicio de libro-service
+  libro-service:
+    build:
+      context: ./libro-service
+    ports:
+      - "8081:8080" # Puerto local: puerto contenedor
+    depends_on:
+      - db
+    networks:
+      - mynetwork
+
+  # Servicio de autor-service
+  autor-service:
+    build:
+      context: ./autor-service
+    ports:
+      - "8082:8080"
+    depends_on:
+      - db
+    networks:
+      - mynetwork
+
+  # Servicio de base de datos (MongoDB o PostgreSQL)
+  db:
+    image: mongo:latest # O usa postgres si prefieres PostgreSQL
+    container_name: mongo_db
+    ports:
+      - "27017:27017" # Puerto de la base de datos
+    networks:
+      - mynetwork
+    volumes:
+      - mongo-data:/data/db
+
+  # (Opcional) Gateway Service
+  gateway-service:
+    build:
+      context: ./gateway-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - libro-service
+      - autor-service
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+
+volumes:
+  mongo-data:
+
